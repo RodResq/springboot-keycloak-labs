@@ -14,7 +14,7 @@ import org.keycloak.representations.idm.authorization.JSPolicyRepresentation;
 import org.keycloak.representations.idm.authorization.ResourcePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.RulePolicyRepresentation;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.keycloak.representations.idm.authorization.TimePolicyRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,10 +138,10 @@ public class SecurityServiceImpl implements SecurityService {
 	}
 
 	@Override
-	public boolean register(RulePolicyRepresentation representation) {
+	public boolean register(PolicyRepresentation representation) {
 		Assert.hasText(representation.getName(), "O atributo 'name' é obrigatório na RulePolicy.");
 
-		getClientResource().authorization().policies().rule().create(representation).close();
+		getClientResource().authorization().policies().create(representation).close();
 		log.info("\t Rule Policy '{}' registrado com sucesso.", representation.getName());
 		return true;
 	}

@@ -1,7 +1,7 @@
 package br.jus.tre_pa.jsecurity;
 
-import org.keycloak.representations.idm.authorization.RulePolicyRepresentation;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 
-public abstract class AbstractRulePolicyConfiguration extends AbstractArtifactConfiguration<RulePolicyRepresentation> {
+public abstract class AbstractRulePolicyConfiguration extends AbstractArtifactConfiguration<PolicyRepresentation> {
 
 }

@@ -3,7 +3,7 @@ package br.jus.tre_pa.jsecurity.impl;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.keycloak.representations.idm.authorization.RulePolicyRepresentation;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class RulePolicyRegister implements JSecurityRegister {
 		if (Objects.nonNull(rulePolicies)) {
 			log.info("-- Rule Policies --");
 			for (AbstractRulePolicyConfiguration policy : rulePolicies) {
-				RulePolicyRepresentation representation = new RulePolicyRepresentation();
+				PolicyRepresentation representation = new PolicyRepresentation();
 				policy.configure(representation);
 				securityService.register(representation);
 			}

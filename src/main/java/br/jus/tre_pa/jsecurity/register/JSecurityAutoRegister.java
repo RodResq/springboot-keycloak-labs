@@ -1,7 +1,6 @@
 package br.jus.tre_pa.jsecurity.register;
 
-import javax.ws.rs.ProcessingException;
-
+import jakarta.ws.rs.ProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;

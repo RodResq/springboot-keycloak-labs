@@ -1,7 +1,7 @@
 package br.jus.tre_pa.jsecurity;
 
-import javax.annotation.PostConstruct;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

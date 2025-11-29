@@ -1,13 +1,12 @@
 package br.jus.tre_pa.jsecurity;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.stream.Stream;
 
-import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.RolePolicyRepresentation.RoleDefinition;
 
 import com.google.common.collect.Sets;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 
 /**
  * Classe que representa um POLICY ROLE.
@@ -15,14 +14,13 @@ import com.google.common.collect.Sets;
  * @author jcruz
  *
  */
-public abstract class AbstractRolePolicyConfiguration extends AbstractArtifactConfiguration<RolePolicyRepresentation> {
+public abstract class AbstractRolePolicyConfiguration extends AbstractArtifactConfiguration<PolicyRepresentation> {
 
 	// @formatter:off
-	protected Set<RoleDefinition> roles(String...roles) {
+	protected HashSet<Stream<PolicyRepresentation>> roles(String...roles) {
 		return Sets.newHashSet(Arrays.asList(roles)
 				.stream()
-				.map(role -> new RoleDefinition(role, true))
-				.collect(Collectors.toSet()));
+				.map(role -> new PolicyRepresentation()));
 	}
 	// @formatter:on
 

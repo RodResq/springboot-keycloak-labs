@@ -2,10 +2,8 @@ package br.jus.tre_pa.jsecurity.config;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -33,18 +31,12 @@ public class SecurityConfig {
 	@Bean
 	public Keycloak getKeycloak() {
 		// @formatter:off
-		return KeycloakBuilder
-				.builder()
-				.serverUrl(kcProperties.getAuthServerUrl())
-				.realm("master")
-				.grantType(OAuth2Constants.PASSWORD)
-				.clientId("admin-cli")
-				.username(kcProperties.getAdmUser())
-				.password(kcProperties.getAdmPass())
-				.resteasyClient(new ResteasyClientBuilder()
-						.connectTimeout(30, TimeUnit.SECONDS)
-						.connectionPoolSize(5).build())
-				.build();
+		return Keycloak.getInstance(
+				"http://localhost:8080",
+				"master",
+				"admin",
+				"password",
+				"admin-cli");
 		// @formatter:on
 	}
 
@@ -55,8 +47,8 @@ public class SecurityConfig {
 	 */
 	@Bean
 	@Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public KeycloakSecurityContext accessToken() {
+	public Keycloak accessToken() {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		return (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+		return (Keycloak) request.getAttribute(Keycloak.class.getName());
 	}
 }

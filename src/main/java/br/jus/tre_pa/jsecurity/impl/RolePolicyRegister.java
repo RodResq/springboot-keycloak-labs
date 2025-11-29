@@ -3,7 +3,7 @@ package br.jus.tre_pa.jsecurity.impl;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class RolePolicyRegister implements JSecurityRegister {
 		if (Objects.nonNull(rolePolicies)) {
 			log.info("-- Role Policies --");
 			for (AbstractRolePolicyConfiguration policy : rolePolicies) {
-				RolePolicyRepresentation representation = new RolePolicyRepresentation();
+				PolicyRepresentation representation = new PolicyRepresentation();
 				policy.configure(representation);
 				securityService.register(representation);
 			}

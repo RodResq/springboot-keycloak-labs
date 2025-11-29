@@ -1,19 +1,11 @@
 package br.jus.tre_pa.jsecurity.service;
 
+
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.authorization.AggregatePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ClientPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.GroupPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.JSPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ResourcePermissionRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
-import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.RulePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.TimePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
+import org.keycloak.representations.idm.authorization.*;
 
 /**
  * Classe com os serviços para manipulação do Keycloak.
@@ -75,9 +67,9 @@ public interface SecurityService {
 	/**
 	 * Método registrador de Policy Rule.
 	 * 
-	 * @param representation {@link RulePolicyRepresentation}
+	 * @param representation {@link PolicyRepresentation}
 	 */
-	boolean register(RulePolicyRepresentation representation);
+	boolean register(PolicyRepresentation representation);
 
 	/**
 	 * Método registrador de Policy Time.
