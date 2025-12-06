@@ -25,25 +25,21 @@ public class SecurityProperties {
 	/**
 	 * URL de conexão do keycloak.
 	 */
-	@Value("${keycloak.auth-server-url}")
 	private String authServerUrl;
 
 	/**
 	 * Realm padrão da aplicação.
 	 */
-	@Value("${keycloak.realm}")
 	private String realm;
 
 	/**
 	 * Secret da aplicação backend.
 	 */
-	@Value("${keycloak.credentials.secret}")
 	private String secret;
 
 	/**
 	 * ClientId da aplicação backend.
 	 */
-	@Value("${keycloak.resource}")
 	private String clientId;
 
 	/**
@@ -54,7 +50,6 @@ public class SecurityProperties {
 	/**
 	 * URIs de redirecionamento da aplicação frontend.
 	 */
-	@Value("#{'${kc.redirect-uris}'.split(',')}")
 	private List<String> redirectUris;
 
 	/**

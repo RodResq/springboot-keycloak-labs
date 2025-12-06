@@ -45,7 +45,6 @@ public class SecurityConfig {
 	 * 
 	 * @return
 	 */
-	@Bean
 	@Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 	public Keycloak accessToken() {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
