@@ -35,7 +35,7 @@ public class SecurityConfig {
 				"http://localhost:8080",
 				"master",
 				"admin",
-				"password",
+				"admin",
 				"admin-cli");
 		// @formatter:on
 	}
