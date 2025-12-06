@@ -28,7 +28,7 @@ public class RealmRegister implements JSecurityRegister {
 	/**
 	 * Lista com todos os realms.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private Collection<AbstractRealmConfiguration> realms;
 
 	@Override

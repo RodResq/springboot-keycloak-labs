@@ -39,7 +39,7 @@ public class ClientRegister implements JSecurityRegister {
 	/**
 	 * Lista com todos os clients.
 	 */
-	@Autowired
+	@Autowired(required = false)
 	private Collection<AbstractClientConfiguration> clientsConf;
 
 	@Override
