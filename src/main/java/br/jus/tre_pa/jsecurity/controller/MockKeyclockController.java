@@ -1,28 +1,42 @@
 package br.jus.tre_pa.jsecurity.controller;
 
 import br.jus.tre_pa.jsecurity.config.SecurityConfig;
+import br.jus.tre_pa.jsecurity.model.input.LoginInput;
+import jakarta.validation.Valid;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/teste")
+@RequestMapping("/api/v1")
 public class MockKeyclockController {
 
     private SecurityConfig securityConfig;
 
     public MockKeyclockController(SecurityConfig securityConfig) {
         this.securityConfig = securityConfig;
+    }
+
+
+    @PostMapping("/token")
+    public ResponseEntity obtainToken(@Valid @RequestBody LoginInput loginInput) {
+        try {
+            System.out.println(loginInput);
+            Keycloak keycloak = securityConfig.getKeycloak();
+            AccessTokenResponse accessTokenResponse = keycloak.tokenManager().getAccessToken();
+            return ResponseEntity.ok().body(accessTokenResponse);
+        } catch (Exception e) {
+            return (ResponseEntity<List<String>>) Collections.singletonList("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/keycloak")
