@@ -2,6 +2,7 @@ package br.jus.tre_pa.jsecurity.service;
 
 
 import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -112,4 +113,8 @@ public interface SecurityService {
 	 * @return
 	 */
 	ClientResource getClientResource(String clientId);
+
+	AccessTokenResponse login(String clientId, String username, String password);
+
+	AccessTokenResponse refreshToken(String clientId, String refreshToken);
 }

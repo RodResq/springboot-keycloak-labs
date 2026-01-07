@@ -2,8 +2,11 @@ package br.jus.tre_pa.jsecurity.impl;
 
 import java.util.Objects;
 
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -18,6 +21,7 @@ import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.keycloak.representations.idm.authorization.TimePolicyRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -34,6 +38,12 @@ public class SecurityServiceImpl implements SecurityService {
 
 	@Autowired
 	private SecurityProperties kcProperties;
+
+	@Value("${keycloak.auth-server-url}")
+	private String serverUrl;
+
+	@Value("${keycloak.realm}")
+	private String realm;
 
 	@Override
 	public boolean register(RealmRepresentation representation) {
@@ -212,12 +222,39 @@ public class SecurityServiceImpl implements SecurityService {
 
 	@Override
 	public ClientResource getClientResource(String clientId) {
-		// @formatter:off
 		return  keycloak.realm(kcProperties.getRealm()).clients().findByClientId(clientId).stream()
 				.map(client-> keycloak.realm(kcProperties.getRealm()).clients().get(client.getId()))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Erro ao encontrar client '%s'", clientId )));
-		// @formatter:on
+	}
+
+	@Override
+	public AccessTokenResponse login(String clientId, String username, String password) {
+		try(Keycloak keycloak = KeycloakBuilder.builder()
+				.serverUrl(serverUrl)
+				.realm(realm)
+				.grantType(OAuth2Constants.PASSWORD)
+				.clientId(clientId)
+				.username(username)
+				.password(password)
+				.build()) {
+
+			return keycloak.tokenManager().getAccessToken();
+		}
+	}
+
+	@Override
+	public AccessTokenResponse refreshToken(String clientId, String refreshToken) {
+		try(Keycloak keycloak = KeycloakBuilder.builder()
+				.serverUrl(serverUrl)
+				.realm(realm)
+				.grantType(OAuth2Constants.REFRESH_TOKEN)
+				.clientId(clientId)
+				.build()
+		) {
+
+			return keycloak.tokenManager().refreshToken();
+		}
 	}
 
 	private boolean hasRealm() {

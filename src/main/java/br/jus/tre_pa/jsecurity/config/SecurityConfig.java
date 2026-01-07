@@ -33,10 +33,10 @@ public class SecurityConfig {
 		// @formatter:off
 		return Keycloak.getInstance(
 				"http://localhost:8080",
-				"master",
-				"admin",
-				"admin",
-				"admin-cli");
+				"ciprej-realm",
+				"user-ciprej",
+				"123456",
+				"user-ciprej");
 		// @formatter:on
 	}
 

@@ -2,6 +2,7 @@ package br.jus.tre_pa.jsecurity.controller;
 
 import br.jus.tre_pa.jsecurity.config.SecurityConfig;
 import br.jus.tre_pa.jsecurity.model.input.LoginInput;
+import br.jus.tre_pa.jsecurity.service.SecurityService;
 import jakarta.validation.Valid;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
@@ -9,12 +10,11 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -26,6 +26,9 @@ public class MockKeyclockController {
         this.securityConfig = securityConfig;
     }
 
+    @Autowired
+    private SecurityService securityService;
+
 
     @PostMapping("/token")
     public ResponseEntity obtainToken(@Valid @RequestBody LoginInput loginInput) {
@@ -34,6 +37,22 @@ public class MockKeyclockController {
             Keycloak keycloak = securityConfig.getKeycloak();
             AccessTokenResponse accessTokenResponse = keycloak.tokenManager().getAccessToken();
             return ResponseEntity.ok().body(accessTokenResponse);
+        } catch (Exception e) {
+            return (ResponseEntity<List<String>>) Collections.singletonList("Error: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
+        try {
+            AccessTokenResponse tokenResponse =
+                    securityService.login(loginInput.getClientId(), loginInput.getUsername(), loginInput.getPassword());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("access_token", tokenResponse.getToken());
+
+            return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return (ResponseEntity<List<String>>) Collections.singletonList("Error: " + e.getMessage());
         }
