@@ -62,20 +62,17 @@ public class UserRegister implements JSecurityRegister {
 
 	private void addDefaultRoles(UserRepresentation representation, ClientRepresentation clientRepresentation) {
 		if (Objects.nonNull(clientRepresentation.getDefaultRoles())) {
-			// @formatter:off
 			UserResource userResource = keycloak.realm(securityProperties.getRealm()).users().search(representation.getUsername())
 				.stream()
 				.findFirst()
 				.map(userRepresentation -> keycloak.realm(securityProperties.getRealm()).users().get(userRepresentation.getId()))
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Erro ao encontrar usuário: ", representation.getUsername())));
 
-			// @formatter:off
 			List<RoleRepresentation> roles = userResource.roles().clientLevel(clientRepresentation.getId())
 				.listAvailable()
 				.stream()
 				.filter(roleRepresentation -> Arrays.asList(clientRepresentation.getDefaultRoles()).contains(roleRepresentation.getName()))
 				.collect(Collectors.toList());
-			// @formatter:on
 			if (!roles.isEmpty()) userResource.roles().clientLevel(clientRepresentation.getId()).add(roles);
 		}
 	}

@@ -5,6 +5,7 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -17,15 +18,33 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Configuration
 public class SecurityConfig {
 
+	@Value("${keycloak.auth-server-url}")
+	private String serverUrl;
+
+	@Value("${keycloak.realm}")
+	private String realm;
+
+	@Value("${keycloak.username}")
+	private String userName;
+
+	@Value(("${keycloak.password}"))
+	private String password;
+
+	@Value(("${keycloak.client}"))
+	private String client;
+
+	@Value("${keycloak.credentials.secret}")
+	private String secret;
+
 	@Bean
 	public Keycloak getKeycloak() {
 		return KeycloakBuilder.builder()
-				.serverUrl("http://localhost:8080")
-				.realm("ciprej-realm")
-				.username("ciprej-user")
-				.password("123")
-				.clientId("ciprej-client")
-				.clientSecret("vCayfDqusgWsLRH8SVlRPizMpAD76Rts")
+				.serverUrl(serverUrl)
+				.realm(realm)
+				.username(userName)
+				.password(password)
+				.clientId(client)
+				.clientSecret(secret)
 				.grantType(OAuth2Constants.PASSWORD)
 				.build();
 	}
