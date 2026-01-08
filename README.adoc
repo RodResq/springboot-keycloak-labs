@@ -16,7 +16,7 @@ O projeto `springboot-jsecurity` tem como objetivo:
 [source, xml, linenums]
 ----
 <dependency>
-	<groupId>br.jus.tre_pa.jsecurity</groupId>
+	<groupId>br.jus.tjpa.jsecurity</groupId>
 	<artifactId>springboot-jsecurity</artifactId>
 	<version>1.1.0</version>
 </dependency>
