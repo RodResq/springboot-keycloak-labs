@@ -20,4 +20,7 @@ public class LoginInput {
     @NotBlank
     private String grantType;
 
+    @NotBlank
+    private String clientSecret;
+
 }

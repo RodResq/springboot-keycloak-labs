@@ -30,14 +30,15 @@ public class SecurityConfig {
 
 	@Bean
 	public Keycloak getKeycloak() {
-		// @formatter:off
-		return Keycloak.getInstance(
-				"http://localhost:8080",
-				"ciprej-realm",
-				"user-ciprej",
-				"123456",
-				"user-ciprej");
-		// @formatter:on
+		return KeycloakBuilder.builder()
+				.serverUrl("http://localhost:8080")
+				.realm("ciprej-realm")
+				.username("ciprej-user")
+				.password("123")
+				.clientId("ciprej-client")
+				.clientSecret("vCayfDqusgWsLRH8SVlRPizMpAD76Rts")
+				.grantType(OAuth2Constants.PASSWORD)
+				.build();
 	}
 
 	/**
