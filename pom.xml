@@ -324,7 +324,7 @@
 	<distributionManagement>
 		<repository>
 			<id>releases</id>
-			<url>http://nexus.tre-pa.gov.br:8090/nexus/content/repositories/releases</url>
+			<url>http://nexus.i.tj.pa.gov.br:8081/repository/maven-releases</url>
 		</repository>
 	</distributionManagement>
 

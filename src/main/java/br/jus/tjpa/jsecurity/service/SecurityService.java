@@ -8,12 +8,6 @@ import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.authorization.*;
 
-/**
- * Classe com os serviços para manipulação do Keycloak.
- * 
- * @author jcruz
- *
- */
 public interface SecurityService {
 
 	/**

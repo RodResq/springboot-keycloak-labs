@@ -17,9 +17,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Configuration
 public class SecurityConfig {
 
-	@Autowired
-	private SecurityProperties kcProperties;
-
 	@Bean
 	public Keycloak getKeycloak() {
 		return KeycloakBuilder.builder()
