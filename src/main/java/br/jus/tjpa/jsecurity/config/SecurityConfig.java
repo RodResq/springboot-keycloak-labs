@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +35,13 @@ public class SecurityConfig {
 	@Value("${keycloak.credentials.secret}")
 	private String secret;
 
+	@Value("${keycloak.target-realm}")
+	private String targetRealm;
+
+	public String getTargetRealm() {
+		return targetRealm;
+	}
+
 	@Bean
 	public Keycloak getKeycloak() {
 		return KeycloakBuilder.builder()
@@ -44,7 +50,6 @@ public class SecurityConfig {
 				.username(userName)
 				.password(password)
 				.clientId(client)
-				.clientSecret(secret)
 				.grantType(OAuth2Constants.PASSWORD)
 				.build();
 	}

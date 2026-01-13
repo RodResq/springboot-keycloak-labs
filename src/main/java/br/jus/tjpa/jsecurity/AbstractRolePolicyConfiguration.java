@@ -8,12 +8,6 @@ import java.util.stream.Stream;
 import com.google.common.collect.Sets;
 import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 
-/**
- * Classe que representa um POLICY ROLE.
- * 
- * @author jcruz
- *
- */
 public abstract class AbstractRolePolicyConfiguration extends AbstractArtifactConfiguration<PolicyRepresentation> {
 
 	// @formatter:off

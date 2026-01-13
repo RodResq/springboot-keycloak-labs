@@ -9,11 +9,13 @@ import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -96,6 +98,49 @@ public class MockKeyclockController {
             return ResponseEntity.ok().body("Realm criado com sucesso");
         } catch (Exception e) {
             return (ResponseEntity<String>) Collections.singletonList("Error: " + e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/ldap/users")
+    public ResponseEntity<List<Map<String, Object>>> getLdapUsers(
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "first", defaultValue = "0") Integer first,
+            @RequestParam(name = "max", defaultValue = "10") Integer max) {
+        try {
+            Keycloak keycloak = securityConfig.getKeycloak();
+
+            List<UserRepresentation> users;
+
+            if (search != null && !search.isEmpty()) {
+                users = keycloak.realm(securityConfig.getTargetRealm())
+                        .users()
+                        .search(search, first, max);
+            } else {
+                users = keycloak.realm(securityConfig.getTargetRealm())
+                        .users()
+                        .list(first, max);
+            }
+
+            List<Map<String, Object>> userList = users.stream()
+                    .map(user -> {
+                       Map<String, Object> userMap = new HashMap<>();
+                       userMap.put("id", user.getId());
+                       userMap.put("username", user.getUsername());
+                       userMap.put("email", user.getEmail());
+                       userMap.put("firstName", user.getFirstName());
+                       userMap.put("lastName", user.getLastName());
+                       userMap.put("enabled", user.isEnabled());
+                       return userMap;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok().body(userList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonList(
+                            Map.of("error", "Error: " + e.getMessage())
+                    ));
         }
     }
 
