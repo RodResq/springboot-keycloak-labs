@@ -11,6 +11,7 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,14 +48,25 @@ public class MockKeyclockController {
     public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
         try {
             AccessTokenResponse tokenResponse =
-                    securityService.login(loginInput.getClientId(), loginInput.getUsername(), loginInput.getPassword());
+                    securityService.login(
+                            loginInput.getClientId(),
+                            loginInput.getUsername(),
+                            loginInput.getPassword()
+                    );
 
             Map<String, Object> response = new HashMap<>();
             response.put("access_token", tokenResponse.getToken());
+            response.put("token_type", tokenResponse.getTokenType());
+            response.put("expires_in", tokenResponse.getExpiresIn());
+            response.put("refresh_token", tokenResponse.getRefreshToken());
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            return (ResponseEntity<List<String>>) Collections.singletonList("Error: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Authentication failed");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
