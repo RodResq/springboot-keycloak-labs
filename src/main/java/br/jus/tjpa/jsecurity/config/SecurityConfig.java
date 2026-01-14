@@ -32,7 +32,7 @@ public class SecurityConfig {
 	@Value(("${keycloak.client}"))
 	private String client;
 
-	@Value("${keycloak.credentials.secret}")
+	@Value("${keycloak.user-client-secret}")
 	private String secret;
 
 	@Value("${keycloak.target-realm}")

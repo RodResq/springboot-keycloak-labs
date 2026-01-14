@@ -49,7 +49,6 @@ public class MockKeyclockController {
         try {
             AccessTokenResponse tokenResponse =
                     securityService.login(
-                            loginInput.getClientId(),
                             loginInput.getUsername(),
                             loginInput.getPassword()
                     );

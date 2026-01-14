@@ -108,6 +108,8 @@ public interface SecurityService {
 	 */
 	ClientResource getClientResource(String clientId);
 
+	AccessTokenResponse login(String username, String password);
+
 	AccessTokenResponse login(String clientId, String username, String password);
 
 	AccessTokenResponse refreshToken(String clientId, String refreshToken);

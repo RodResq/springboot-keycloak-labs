@@ -48,6 +48,12 @@ public class SecurityServiceImpl implements SecurityService {
 	@Value("${keycloak.target-realm}")
 	private String targetRealm;
 
+	@Value("${keycloak.client}")
+	private String userClientId;
+
+	@Value("${keycloak.user-client-secret}")
+	private String userClientSecret;
+
 	@Override
 	public boolean register(RealmRepresentation representation) {
 		if (!hasRealm()) {
@@ -239,6 +245,21 @@ public class SecurityServiceImpl implements SecurityService {
 				.username(username)
 				.password(password)
 				.clientId(clientId)
+				.grantType(OAuth2Constants.PASSWORD)
+				.build()) {
+
+			return keycloak.tokenManager().getAccessToken();
+		}
+	}
+
+	@Override
+	public AccessTokenResponse login(String username, String password) {
+		try(Keycloak keycloak = KeycloakBuilder.builder()
+				.serverUrl(serverUrl)
+				.realm(targetRealm)
+				.username(username)
+				.password(password)
+				.clientId(userClientSecret)
 				.grantType(OAuth2Constants.PASSWORD)
 				.build()) {
 
