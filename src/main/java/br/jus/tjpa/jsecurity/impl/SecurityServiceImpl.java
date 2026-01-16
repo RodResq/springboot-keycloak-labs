@@ -48,7 +48,7 @@ public class SecurityServiceImpl implements SecurityService {
 	@Value("${keycloak.target-realm}")
 	private String targetRealm;
 
-	@Value("${keycloak.client}")
+	@Value("${keycloak.user-client}")
 	private String userClientId;
 
 	@Value("${keycloak.user-client-secret}")
@@ -259,7 +259,8 @@ public class SecurityServiceImpl implements SecurityService {
 				.realm(targetRealm)
 				.username(username)
 				.password(password)
-				.clientId(userClientSecret)
+				.clientId(userClientId)
+				.clientSecret(userClientSecret)
 				.grantType(OAuth2Constants.PASSWORD)
 				.build()) {
 
