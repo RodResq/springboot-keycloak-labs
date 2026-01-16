@@ -4,6 +4,7 @@ import br.jus.tjpa.jsecurity.config.SecurityConfig;
 import br.jus.tjpa.jsecurity.model.input.LoginInput;
 import br.jus.tjpa.jsecurity.service.SecurityService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.representations.AccessTokenResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 public class MockKeyclockController {
@@ -47,6 +49,7 @@ public class MockKeyclockController {
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
         try {
+            log.info("Efetuando Login com o usuário: {}", loginInput.getUsername());
             AccessTokenResponse tokenResponse =
                     securityService.login(
                             loginInput.getUsername(),
