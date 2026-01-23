@@ -1,6 +1,7 @@
 package br.jus.tjpa.jsecurity.impl;
 
 import br.jus.tjpa.jsecurity.config.AbstractProtocolMapperConfiguration;
+import br.jus.tjpa.jsecurity.config.SecurityProperties;
 import br.jus.tjpa.jsecurity.register.JSecurityRegister;
 import br.jus.tjpa.jsecurity.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,9 @@ import java.util.Objects;
 @Component
 @Slf4j
 public class ProtocolMapperRegister implements JSecurityRegister {
+
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private SecurityService securityService;
@@ -41,7 +45,7 @@ public class ProtocolMapperRegister implements JSecurityRegister {
 
     private boolean registerProtocolMapper(ProtocolMapperRepresentation representation) {
         try {
-            ClientResource clientResource = securityService.getClientResource(getClientIdFromProperties());
+            ClientResource clientResource = securityService.getClientResource(securityProperties.getClientId());
 
             boolean protocolMapperExists = clientResource.getProtocolMappers()
                     .getMappers()

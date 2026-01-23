@@ -1,0 +1,31 @@
+package br.jus.tjpa.jsecurity.config;
+
+import org.keycloak.representations.idm.ProtocolMapperRepresentation;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfiguration {
+
+    @Override
+    public void configure(ProtocolMapperRepresentation representation) {
+        representation.setName("cpf-mapper");
+        representation.setProtocol("openid-connect");
+        representation.setProtocolMapper("oidc-usermodel-attribute-mapper");
+
+        Map<String, String> config = new HashMap<>();
+        config.put("user.attribute", "cpf");
+        config.put("claim.name", "cpf");
+        config.put("jsonType.label", "string");
+        config.put("id.token.claim", "true");
+        config.put("access.token.claim", "true");
+        config.put("userinfo.token.claim", "true");
+
+        representation.setConfig(config);
+    }
+
+
+
+
+
+}

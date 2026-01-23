@@ -3,6 +3,7 @@ package br.jus.tjpa.jsecurity.controller;
 import br.jus.tjpa.jsecurity.config.SecurityConfig;
 import br.jus.tjpa.jsecurity.model.input.LoginInput;
 import br.jus.tjpa.jsecurity.service.SecurityService;
+import br.jus.tjpa.jsecurity.service.UserAttributeExtractorService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -33,6 +34,9 @@ public class MockKeyclockController {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private UserAttributeExtractorService userAttributeExtractorService;
+
 
     @PostMapping("/token")
     public ResponseEntity obtainToken(@Valid @RequestBody LoginInput loginInput) {
@@ -50,6 +54,9 @@ public class MockKeyclockController {
     public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
         try {
             log.info("Efetuando Login com o usuário: {}", loginInput.getUsername());
+
+            userAttributeExtractorService.extractAndSetCPF(loginInput.getUsername());
+
             AccessTokenResponse tokenResponse =
                     securityService.login(
                             loginInput.getUsername(),
