@@ -24,12 +24,7 @@ import br.jus.tjpa.jsecurity.impl.UserPolicyRegister;
 import br.jus.tjpa.jsecurity.impl.UserRegister;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Classe que realiza o registro automático (inicialização da aplicação) dos arrtefatos no Keycloak.
- * 
- * @author jcruz
- *
- */
+
 @Component
 @Slf4j
 public class JSecurityAutoRegister {

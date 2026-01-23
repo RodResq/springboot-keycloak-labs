@@ -1,0 +1,67 @@
+package br.jus.tjpa.jsecurity.impl;
+
+import br.jus.tjpa.jsecurity.config.AbstractProtocolMapperConfiguration;
+import br.jus.tjpa.jsecurity.register.JSecurityRegister;
+import br.jus.tjpa.jsecurity.service.SecurityService;
+import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.representations.idm.ProtocolMapperRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.Objects;
+
+@Component
+@Slf4j
+public class ProtocolMapperRegister implements JSecurityRegister {
+
+    @Autowired
+    private SecurityService securityService;
+
+    private Collection<AbstractProtocolMapperConfiguration> protocolMappers;
+
+    @Override
+    public void register() {
+        if (Objects.nonNull(protocolMappers)) {
+            log.info("-- Prototocol Mappers --");
+
+            for (AbstractProtocolMapperConfiguration mapper: protocolMappers) {
+                ProtocolMapperRepresentation representation = new ProtocolMapperRepresentation();
+                mapper.configure(representation);
+
+                if (registerProtocolMapper(representation)) {
+                    log.info("\t Protocol Mapper '{}' registrado com sucesso.", representation.getName());
+                } else {
+                    log.info("\t Protocol Mapper '{}' já existe.", representation.getName());
+                }
+            }
+        }
+    }
+
+    private boolean registerProtocolMapper(ProtocolMapperRepresentation representation) {
+        try {
+            ClientResource clientResource = securityService.getClientResource(getClientIdFromProperties());
+
+            boolean protocolMapperExists = clientResource.getProtocolMappers()
+                    .getMappers()
+                    .stream()
+                    .anyMatch(m -> m.getName().equals(representation.getName()));
+
+            if (!protocolMapperExists) {
+                clientResource.getProtocolMappers().createMapper(representation);
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            log.error("Erro ao registrar Protocol Mapper '{}': {}",
+                    representation.getName(), e.getMessage());
+            return false;
+        }
+    }
+
+    private String getClientIdFromProperties() {
+        return "acme";
+    }
+}
