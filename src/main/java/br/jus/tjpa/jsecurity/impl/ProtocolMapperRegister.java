@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -25,6 +26,9 @@ public class ProtocolMapperRegister implements JSecurityRegister {
 
     @Autowired
     private Collection<AbstractProtocolMapperConfiguration> protocolMappers;
+
+    @Value("${keycloak.user-client}")
+    private String userClientId;
 
     @Override
     public void register() {
@@ -58,7 +62,7 @@ public class ProtocolMapperRegister implements JSecurityRegister {
 
     private boolean registerProtocolMapper(ProtocolMapperRepresentation representation) {
         try {
-            ClientResource clientResource = securityService.getClientResource(securityProperties.getClientId());
+            ClientResource clientResource = securityService.getClientResource(userClientId);
 
             boolean protocolMapperExists = clientResource.getProtocolMappers()
                     .getMappers()
@@ -67,6 +71,24 @@ public class ProtocolMapperRegister implements JSecurityRegister {
 
             if (!protocolMapperExists) {
                 clientResource.getProtocolMappers().createMapper(representation);
+
+                log.info("Protocol Mapper '{}' adicionado ao client ''{}",
+                        representation.getName(),
+                        securityProperties.getClientId());
+
+                boolean created = clientResource.getProtocolMappers()
+                        .getMappers()
+                        .stream()
+                        .anyMatch(m -> m.getName().equals(representation.getName()));
+
+                if (created) {
+                    log.info("Verificação confirmada: Protocol Mapper '{}' está presente no cliente",
+                            representation.getName());
+                } else {
+                    log.warn("AVISO: Protocol Mapper '{}' foi criado mas não foi encontrado na verificação",
+                            representation.getName());
+                }
+
                 return true;
             }
 

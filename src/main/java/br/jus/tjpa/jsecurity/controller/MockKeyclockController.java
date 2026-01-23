@@ -37,6 +37,9 @@ public class MockKeyclockController {
     @Autowired
     private UserAttributeExtractorService userAttributeExtractorService;
 
+    @Autowired
+    private Keycloak keycloak;
+
 
     @PostMapping("/token")
     public ResponseEntity obtainToken(@Valid @RequestBody LoginInput loginInput) {
@@ -57,11 +60,27 @@ public class MockKeyclockController {
 
             userAttributeExtractorService.extractAndSetCPF(loginInput.getUsername());
 
+            UserRepresentation user = keycloak.realm(securityConfig.getTargetRealm())
+                    .users()
+                    .search(loginInput.getUsername())
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (user != null && user.getAttributes() != null) {
+                log.info("Atributos do usuário antes do login: {}", user.getAttributes());
+                log.info("CPF do usuário: {}", user.getAttributes().get("cpf"));
+            }
+
             AccessTokenResponse tokenResponse =
                     securityService.login(
                             loginInput.getUsername(),
                             loginInput.getPassword()
                     );
+
+            String[] tokenParts = tokenResponse.getToken().split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(tokenParts[1]));
+            log.info("Token payload: {}", payload);
 
             Map<String, Object> response = new HashMap<>();
             response.put("access_token", tokenResponse.getToken());

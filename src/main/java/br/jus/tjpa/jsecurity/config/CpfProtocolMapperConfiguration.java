@@ -13,17 +13,19 @@ public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfig
 
     @Override
     public void configure(ProtocolMapperRepresentation representation) {
-        representation.setName("cpf-mapper");
+        representation.setName("cpf");
         representation.setProtocol("openid-connect");
         representation.setProtocolMapper("oidc-usermodel-attribute-mapper");
 
         Map<String, String> config = new HashMap<>();
         config.put("user.attribute", "cpf");
         config.put("claim.name", "cpf");
-        config.put("jsonType.label", "string");
+        config.put("jsonType.label", "String");
         config.put("id.token.claim", "true");
         config.put("access.token.claim", "true");
         config.put("userinfo.token.claim", "true");
+        config.put("aggregate.attrs", "false");
+        config.put("multivalued", "false");
 
         representation.setConfig(config);
 
