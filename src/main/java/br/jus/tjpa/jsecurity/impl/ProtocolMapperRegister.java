@@ -63,6 +63,8 @@ public class ProtocolMapperRegister implements JSecurityRegister {
     private boolean registerProtocolMapper(ProtocolMapperRepresentation representation) {
         try {
             ClientResource clientResource = securityService.getClientResource(userClientId);
+            log.info("Verificando Protol Mapper '{}' no client '{}'",
+                    representation.getName(), userClientId);
 
             boolean protocolMapperExists = clientResource.getProtocolMappers()
                     .getMappers()

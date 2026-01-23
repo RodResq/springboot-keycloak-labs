@@ -32,9 +32,7 @@ public class UserAttributeExtractorService {
                 .users()
                 .list()
                 .stream()
-                .findFirst()
-                .stream()
-                .forEach(user -> extractAndSetCPF("rodrigo.resque"));
+                .forEach(user -> extractAndSetCPF(user.getUsername()));
 
         log.info("Extração de cpf concluída!");
     }
@@ -52,36 +50,54 @@ public class UserAttributeExtractorService {
         extractAndSetCpf(user);
     }
 
-    private void extractAndSetCpf(UserRepresentation user) {
-        Map<String, List<String>> attributes = user.getAttributes();
+    private boolean extractAndSetCpf(UserRepresentation user) {
+        try {
+            Map<String, List<String>> attributes = user.getAttributes();
 
-        if (attributes == null) {
-            attributes = new HashMap<>();
+            if (attributes == null) {
+                attributes = new HashMap<>();
+            }
+
+            if (attributes.containsKey("cpf") && attributes.get("cpf") != null && !attributes.get("cpf").isEmpty()) {
+                String cpfExistente = attributes.get("cpf").get(0);
+                log.debug("Usuário {} já possui CPF: {}", user.getUsername(), cpfExistente);
+                return true;
+            }
+
+            String description = null;
+
+            if (attributes.containsKey("description")
+                    && attributes.get("description") != null
+                    && !attributes.get("description").isEmpty()) {
+                description = attributes.get("description").get(0);
+            }
+
+            if (description == null || description.isEmpty()) {
+                log.warn("Usuário {} não possui description", user.getUsername());
+                return false;
+            }
+
+            String cpf = extractCpf(description);
+
+            if (cpf != null) {
+                attributes.put("cpf", List.of(cpf));
+                log.info("Cpf extraido para {}: {}", user.getUsername(), cpf);
+                user.setAttributes(attributes);
+                keycloak.realm(securityProperties.getRealm())
+                        .users()
+                        .get(user.getId())
+                        .update(user);
+
+                return true;
+            } else {
+                log.warn("Não foi possível extrair CPF da description do usuário {}", user.getUsername());
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("Erro ao processar usuário {}: {}", user.getUsername(), e.getMessage(), e);
+            return false;
         }
 
-        String description = null;
-
-        if (attributes.containsKey("description") && !attributes.get("description").isEmpty()) {
-            description = attributes.get("description").get(0);
-        }
-
-        if (description == null || description.isEmpty()) {
-            log.warn("Usuário {} não possui description", user.getUsername());
-            return;
-        }
-
-        String cpf = extractCpf(description);
-
-        if (cpf != null) {
-            attributes.put("cpf", List.of(cpf));
-            log.info("Cpf extraido para {}: {}", user.getUsername(), cpf);
-        }
-
-        user.setAttributes(attributes);
-        keycloak.realm(securityProperties.getRealm())
-                .users()
-                .get(user.getId())
-                .update(user);
     }
 
     private String extractCpf(String description) {

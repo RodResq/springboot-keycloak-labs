@@ -65,7 +65,7 @@ public class MockKeyclockController {
                     .search(loginInput.getUsername())
                     .stream()
                     .findFirst()
-                    .orElse(null);
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
             if (user != null && user.getAttributes() != null) {
                 log.info("Atributos do usuário antes do login: {}", user.getAttributes());
