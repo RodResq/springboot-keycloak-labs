@@ -1,10 +1,14 @@
 package br.jus.tjpa.jsecurity.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
+@Slf4j
 public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfiguration {
 
     @Override
@@ -22,6 +26,8 @@ public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfig
         config.put("userinfo.token.claim", "true");
 
         representation.setConfig(config);
+
+        log.info("Protocol Mapper CPF configurado com: {}", config);
     }
 
 

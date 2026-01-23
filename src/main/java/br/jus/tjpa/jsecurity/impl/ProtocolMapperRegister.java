@@ -23,13 +23,26 @@ public class ProtocolMapperRegister implements JSecurityRegister {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
     private Collection<AbstractProtocolMapperConfiguration> protocolMappers;
 
     @Override
     public void register() {
-        if (Objects.nonNull(protocolMappers)) {
-            log.info("-- Prototocol Mappers --");
+        log.info("-- Prototocol Mappers --");
 
+        if (Objects.isNull(protocolMappers)) {
+            log.warn("protocolMappers é NULL!");
+            return;
+        }
+
+        if (protocolMappers.isEmpty()) {
+            log.warn("protocolMappers está VAZIO!");
+            return;
+        }
+
+        log.info("Total de protocolos mapper encontrados: {}", protocolMappers.size());
+
+        if (Objects.nonNull(protocolMappers))  {
             for (AbstractProtocolMapperConfiguration mapper: protocolMappers) {
                 ProtocolMapperRepresentation representation = new ProtocolMapperRepresentation();
                 mapper.configure(representation);

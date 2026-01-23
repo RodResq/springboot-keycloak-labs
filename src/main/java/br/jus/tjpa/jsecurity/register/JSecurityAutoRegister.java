@@ -30,7 +30,7 @@ public class JSecurityAutoRegister {
 			applicationContext.getBean(RealmRegister.class).register();
 			applicationContext.getBean(ClientRegister.class).register();
 			applicationContext.getBean(UserRegister.class).register();
-			applicationContext.getBean(ProtocolMapperRegister.class);
+			applicationContext.getBean(ProtocolMapperRegister.class).register();
 			applicationContext.getBean(ResourceRegister.class).register();
 			applicationContext.getBean(RolePolicyRegister.class).register();
 			applicationContext.getBean(ClientPolicyRegister.class).register();
