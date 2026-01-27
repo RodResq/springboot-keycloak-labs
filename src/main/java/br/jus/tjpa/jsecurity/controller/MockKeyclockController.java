@@ -56,31 +56,108 @@ public class MockKeyclockController {
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
         try {
+            log.info("╔════════════════════════════════════════╗");
+            log.info("║        INÍCIO DO PROCESSO LOGIN        ║");
+            log.info("╚════════════════════════════════════════╝");
+            log.info("Usuário: {}", loginInput.getUsername());
             log.info("Efetuando Login com o usuário: {}", loginInput.getUsername());
 
-            userAttributeExtractorService.extractAndSetCPF(loginInput.getUsername());
-
-            UserRepresentation user = keycloak.realm(securityConfig.getTargetRealm())
+            log.info("\n[PASSO 1] Buscando usuário no Keycloak...");
+            UserRepresentation userAntes = keycloak.realm(securityConfig.getTargetRealm())
                     .users()
                     .search(loginInput.getUsername())
                     .stream()
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-            if (user != null && user.getAttributes() != null) {
-                log.info("Atributos do usuário antes do login: {}", user.getAttributes());
-                log.info("CPF do usuário: {}", user.getAttributes().get("cpf"));
+            log.info("✓ Usuário encontrado: {} (ID: {})", userAntes.getUsername(), userAntes.getId());
+
+            log.info("\n[VERIFICAÇÃO] Atributos ANTES da extração:");
+            if (userAntes.getAttributes() == null || userAntes.getAttributes().isEmpty()) {
+                log.warn("Usuário NÃO possui atributos!");
+            } else {
+                userAntes.getAttributes().forEach((key, value) -> {
+                    log.info("  - {}: {}", key, value);
+                });
+
+                if (userAntes.getAttributes().containsKey("cpf")) {
+                    log.info("PF já existe: {}", userAntes.getAttributes().get("cpf"));
+                } else {
+                    log.warn("CPF NÃO existe ainda");
+                }
             }
 
-            AccessTokenResponse tokenResponse =
-                    securityService.login(
+            log.info("\n[PASSO 2] Extraindo CPF do atributo description...");
+            boolean cpfExtraido = userAttributeExtractorService.extractAndSetCPF(loginInput.getUsername());
+
+            if (cpfExtraido) {
+                log.info("CPF extraído e salvo com sucesso");
+            } else {
+                log.warn("Não foi possível extrair o CPF");
+            }
+
+            log.info("\n[PASSO 3] Verificando atributos APÓS extração...");
+            UserRepresentation userDepois = keycloak.realm(securityConfig.getTargetRealm())
+                    .users()
+                    .get(userAntes.getId())
+                    .toRepresentation();
+
+            if (userDepois.getAttributes() == null || userDepois.getAttributes().isEmpty()) {
+                log.error("ERRO: Usuário ainda NÃO possui atributos!");
+            } else {
+                log.info("Atributos atualizados:");
+                userDepois.getAttributes().forEach((key, value) -> {
+                    log.info("  - {}: {}", key, value);
+                });
+
+                if (userDepois.getAttributes().containsKey("cpf")) {
+                    List<String> cpfValues = userDepois.getAttributes().get("cpf");
+                    if (cpfValues != null && !cpfValues.isEmpty()) {
+                        String cpf = cpfValues.get(0);
+                        log.info(" ✓✓✓ CPF CONFIGURADO: {} ✓✓✓", cpf);
+                    }
+                } else {
+                    log.error("CPF AINDA NÃO EXISTE!");
+                    log.error("Isso significa que o token NÃO terá o CPF!");
+                }
+            }
+
+            log.info("\n[PASSO 4] Realizando login no Keycloak...");
+            AccessTokenResponse tokenResponse = securityService.login(
                             loginInput.getUsername(),
                             loginInput.getPassword()
-                    );
+            );
 
+            log.info("Token gerado com sucesso");
+
+            log.info("\n[PASSO 5] Analisando token JWT...");
             String[] tokenParts = tokenResponse.getToken().split("\\.");
-            String payload = new String(Base64.getUrlDecoder().decode(tokenParts[1]));
-            log.info("Token payload: {}", payload);
+            if (tokenParts.length > 2) {
+                String payload = new String(Base64.getUrlDecoder().decode(tokenParts[1]));
+
+                log.info("Token JWT Payload:");
+                log.info("{}" , payload);
+
+                if (payload.contains("\"cpf\"")) {
+                    log.info("\\n✓✓✓ SUCESSO: CPF PRESENTE NO TOKEN! ✓✓✓");
+
+                    int cpfIndex = payload.indexOf("\\\"cpf\\\"");
+                    if (cpfIndex > 0) {
+                        int start = payload.indexOf(":", cpfIndex) + 1;
+                        int end = payload.indexOf(",", start);
+
+                        if (end == -1) end = payload.indexOf("}", start);
+                        String cpfValue = payload.substring(start, end).trim().replace("\"", "");
+                        log.info("Valor do CPF no token: {}", cpfValue);
+                    }
+                } else {
+                    log.error("FALHA: CPF NÃO ESTÁ NO TOKEN! ❌❌❌");
+                    log.error("Possíveis causas:");
+                    log.error("1. O atributo 'cpf' não existe no usuário");
+                    log.error("2. O Protocol Mapper não está configurado corretamente");
+                    log.error("3. O Protocol Mapper está no cliente errado");
+                }
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("access_token", tokenResponse.getToken());
@@ -88,13 +165,79 @@ public class MockKeyclockController {
             response.put("expires_in", tokenResponse.getExpiresIn());
             response.put("refresh_token", tokenResponse.getRefreshToken());
 
+            log.info("\n╔════════════════════════════════════════╗");
+            log.info("║          LOGIN CONCLUÍDO               ║");
+            log.info("╚════════════════════════════════════════╝\n");
+
+
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
+            log.error("\n╔════════════════════════════════════════╗");
+            log.error("║          ERRO NO LOGIN                 ║");
+            log.error("╚════════════════════════════════════════╝");
+            log.error("Erro: {}", e.getMessage(), e);
+
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Authentication failed");
             errorResponse.put("message", e.getMessage());
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
+
+    @PostMapping("/usuarios/extrair-cpf")
+    public ResponseEntity<Map<String, Object>> extrairCpfTodosUsuarios() {
+        try {
+            log.info("╔════════════════════════════════════════╗");
+            log.info("║   EXTRAÇÃO DE CPF - TODOS USUÁRIOS     ║");
+            log.info("╚════════════════════════════════════════╝");
+
+            userAttributeExtractorService.extractCpfFomAllUses();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Extração de CPF concluída");
+
+            log.info("Processo concluído");
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            log.error("Erro ao extrair CPF: {}", e.getMessage(), e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/usuario/{username}/extrair-cpf")
+    public ResponseEntity<Map<String, Object>> extrairCpfUsuario(@PathVariable String username) {
+        try {
+
+            log.info("Extraindo CPF do usuário: {}", username);
+
+            boolean sucesso = userAttributeExtractorService.extractAndSetCPF(username);
+
+            Map<String, Object> response = new HashMap<>();
+            if (sucesso) {
+                response.put("status", "success");
+                response.put("message", "CPF extraído e configurado com sucesso");
+                log.info("CPF configurado para: {}", username);
+            } else {
+                response.put("status", "warning");
+                response.put("message", "Não foi possível extrair o CPF");
+                log.warn("Falha ao extrair CPF para: {}", username);
+            }
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao extrair CPF do usuário {}: {}", username, e.getMessage(), e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 

@@ -6,10 +6,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -108,5 +105,57 @@ public class DiagnosticoController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    public ResponseEntity<Map<String, Object>> verificarCpfTodosUsuarios(
+        @RequestParam(defaultValue = "0") int first,
+        @RequestParam(defaultValue = "10") int max) {
+
+        try {
+            log.info("=== VERIFICANDO CPF DE USUÁRIOS ===");
+
+            List<UserRepresentation> users = keycloak.realm(securityConfig.getTargetRealm())
+                    .users()
+                    .list(first, max);
+
+            int total = users.size();
+            int comCpf = 0;
+            int semCpf = 0;
+            int comDescription = 0;
+
+            for (UserRepresentation user: users) {
+                Map<String, List<String>> attrs = user.getAttributes();
+
+                if (attrs != null) {
+                    if (attrs.containsKey("cpf") && !attrs.get("cpf").isEmpty()) {
+                        comCpf++;
+                    } else {
+                        semCpf++;
+                    }
+
+                    if (attrs.containsKey("description") && !attrs.get("description").isEmpty()) {
+                        comDescription++;
+                    }
+                }
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("total_usuarios", total);
+            result.put("com_cpf", comCpf);
+            result.put("sem_cpf", semCpf);
+            result.put("com_description", comDescription);
+            result.put("paginacao", Map.of("firts", first, "max", max));
+
+            log.info("Total: {}, Com CPF: {}, Sem CPF: {}, Com Description: {}",
+                    total, comCpf, semCpf, comDescription);
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("Erro ao verificar usuários: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+
     }
 }

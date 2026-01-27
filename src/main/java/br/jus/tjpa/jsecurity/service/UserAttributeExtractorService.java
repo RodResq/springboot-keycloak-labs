@@ -37,7 +37,7 @@ public class UserAttributeExtractorService {
         log.info("Extração de cpf concluída!");
     }
 
-    public void extractAndSetCPF(String username) {
+    public boolean extractAndSetCPF(String username) {
         log.info("Extrando cpf do user: {}", username);
 
         UserRepresentation user = keycloak.realm(securityProperties.getRealm())
@@ -47,10 +47,10 @@ public class UserAttributeExtractorService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User não encontrado: " + username));
 
-        extractAndSetCpf(user);
+       return extractCpf(user);
     }
 
-    private boolean extractAndSetCpf(UserRepresentation user) {
+    private boolean extractCpf(UserRepresentation user) {
         try {
             Map<String, List<String>> attributes = user.getAttributes();
 
