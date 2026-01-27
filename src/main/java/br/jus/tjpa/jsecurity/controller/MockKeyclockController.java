@@ -8,11 +8,13 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,9 @@ public class MockKeyclockController {
 
     @Autowired
     private Keycloak keycloak;
+
+    @Value("${keycloak.target-realm}")
+    private String targetRealm;
 
 
     @PostMapping("/token")
@@ -324,6 +329,106 @@ public class MockKeyclockController {
                     .body(Collections.singletonList(
                             Map.of("error", "Error: " + e.getMessage())
                     ));
+        }
+    }
+
+    @PostMapping("/adicionar-cpf-local/{username}/{cpf}")
+    public ResponseEntity<Map<String, Object>> adicionarCpfLocal(
+            @PathVariable String username,
+            @PathVariable String cpf) {
+
+        log.info("╔════════════════════════════════════════╗");
+        log.info("║   ADICIONANDO CPF LOCAL (WORKAROUND)   ║");
+        log.info("╚════════════════════════════════════════╝");
+        log.info("Usuário: {}", username);
+        log.info("CPF: {}", cpf);
+
+        try {
+            // 1. Buscar usuário
+            log.info("[1/4] Buscando usuário...");
+            UserRepresentation user = keycloak.realm(targetRealm)
+                    .users()
+                    .search(username)
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+            log.info("✓ Usuário encontrado: {} (ID: {})", user.getUsername(), user.getId());
+
+            // 2. Obter UserResource
+            log.info("[2/4] Obtendo recurso do usuário...");
+            UserResource userResource = keycloak.realm(targetRealm)
+                    .users()
+                    .get(user.getId());
+
+            // 3. Obter representação ATUAL com todos os atributos
+            log.info("[3/4] Obtendo atributos atuais...");
+            UserRepresentation userAtual = userResource.toRepresentation();
+
+            Map<String, List<String>> attributes = userAtual.getAttributes();
+            if (attributes == null) {
+                attributes = new HashMap<>();
+            }
+
+            log.info("Atributos ANTES:");
+            attributes.forEach((key, value) -> log.info("  - {}: {}", key, value));
+
+            log.info("[4/4] Adicionando cpf_custom...");
+            attributes.put("cpf_custom", Arrays.asList(cpf));
+
+            // IMPORTANTE: Usar a representação ATUAL, não a antiga
+            userAtual.setAttributes(attributes);
+
+            // 5. Atualizar no Keycloak
+            log.info("Atualizando usuário no Keycloak...");
+            userResource.update(userAtual);
+
+            // 6. Verificar se foi salvo
+            log.info("Verificando se foi salvo...");
+            UserRepresentation userVerificado = userResource.toRepresentation();
+
+            log.info("Atributos DEPOIS:");
+            boolean sucesso = userVerificado.getAttributes() != null
+                    && userVerificado.getAttributes().containsKey("cpf_custom")
+                    && !userVerificado.getAttributes().get("cpf_custom").isEmpty();
+
+            Map<String, Object> response = new HashMap<>();
+
+            if (sucesso) {
+                String cpfSalvo = userVerificado.getAttributes().get("cpf_custom").get(0);
+                log.info("✓✓✓ SUCESSO: CPF salvo: {}", cpfSalvo);
+
+                response.put("status", "SUCESSO");
+                response.put("mensagem", "CPF adicionado como atributo local");
+                response.put("cpf", cpf);
+                response.put("observacao", "Este CPF está salvo no Keycloak, não no LDAP");
+                response.put("user_id", user.getId());
+                response.put("username", user.getUsername());
+            } else {
+                log.error("❌ ERRO: CPF não foi salvo");
+                log.error("Atributos após update: {}", userVerificado.getAttributes());
+
+                response.put("status", "ERRO");
+                response.put("mensagem", "Não foi possível adicionar CPF");
+                response.put("atributos_apos_update", userVerificado.getAttributes());
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("❌ ERRO ao adicionar CPF: {}", e.getMessage(), e);
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERRO");
+            errorResponse.put("mensagem", e.getMessage());
+            errorResponse.put("tipo_erro", e.getClass().getSimpleName());
+
+            // Se for erro de permissão ou readonly
+            if (e.getMessage() != null && e.getMessage().contains("read-only")) {
+                errorResponse.put("sugestao", "Usuário LDAP não permite modificação direta. Use a solução com LDAP Mapper.");
+            }
+
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
 

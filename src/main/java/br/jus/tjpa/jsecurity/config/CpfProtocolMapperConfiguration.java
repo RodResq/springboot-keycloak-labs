@@ -30,7 +30,7 @@ public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfig
         representation.setProtocolMapper("oidc-usermodel-attribute-mapper");
 
         Map<String, String> config = new HashMap<>();
-        config.put("user.attribute", "cpf");
+        config.put("user.attribute", "cpf_custom");
         config.put("claim.name", "cpf");
         config.put("jsonType.label", "String");
 
