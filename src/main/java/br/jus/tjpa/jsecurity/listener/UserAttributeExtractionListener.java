@@ -23,7 +23,7 @@ public class UserAttributeExtractionListener {
         if (autoExtractAttributes) {
             log.info("Auto-extração de atributos habilitada. Processando usuários");
             try {
-                userAttributeExtractorService.extractCpfFomAllUses();
+//                userAttributeExtractorService.extractCpfFomAllUses();
                 //TODO Atribuir o cpf ao token
                 log.info("Extração automatica de atributos concluída com sucesso!");
             } catch (Exception e) {
