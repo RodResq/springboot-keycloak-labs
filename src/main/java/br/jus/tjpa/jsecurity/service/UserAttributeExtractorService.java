@@ -30,20 +30,15 @@ public class UserAttributeExtractorService {
 
 
     public void extractCpfFomAllUses() {
-        log.info("Inciando a extração de cpf de todos os users...");
-
         keycloak.realm(targetRealm)
                 .users()
                 .list()
                 .stream()
                 .forEach(user -> extractAndSetCPF(user.getUsername()));
 
-        log.info("Extração de cpf concluída!");
     }
 
     public boolean extractAndSetCPF(String username) {
-        log.info("Extrando cpf do user: {}", username);
-
         UserRepresentation user = keycloak.realm(targetRealm)
                 .users()
                 .search(username)
@@ -77,31 +72,20 @@ public class UserAttributeExtractorService {
             }
 
             if (description == null || description.isEmpty()) {
-                log.warn("Usuário {} não possui description", user.getUsername());
                 return false;
             }
 
             String cpf = extractCpfFromDescription(description);
 
             if (cpf != null) {
-                log.info("╔════════════════════════════════════════╗");
-                log.info("║      SALVANDO CPF NO KEYCLOAK          ║");
-                log.info("╚════════════════════════════════════════╝");
-                log.info("Usuário: {}", user.getUsername());
-                log.info("CPF extraído: {}", cpf);
-                log.info("Description: {}", description);
-
                 // Adicionar CPF aos atributos
                 attributes.put("cpf", Arrays.asList(cpf));
                 user.setAttributes(attributes);
-
-                log.info("[1/2] Atualizando usuário no Keycloak...");
 
                 keycloak.realm(targetRealm)
                         .users()
                         .get(user.getId())
                         .update(user);
-                log.info("[2/2] Verificando se foi salvo...");
 
                 // Verificar se foi salvo
                 UserRepresentation userVerificado = keycloak.realm(targetRealm)
@@ -113,20 +97,14 @@ public class UserAttributeExtractorService {
                         && userVerificado.getAttributes().containsKey("cpf")
                         && !userVerificado.getAttributes().get("cpf").isEmpty()) {
                     String cpfSalvo = userVerificado.getAttributes().get("cpf").get(0);
-                    log.info("✓✓✓ CONFIRMADO: CPF salvo com sucesso: {}", cpfSalvo);
                     return true;
                 } else {
-                    log.error("❌ ERRO: CPF não foi salvo no Keycloak!");
-                    log.error("Atributos após update: {}", userVerificado.getAttributes());
                     return false;
                 }
             } else {
-                log.warn("Não foi possível extrair CPF da description do usuário {}", user.getUsername());
-                log.warn("Description: {}", description);
                 return false;
             }
         } catch (Exception e) {
-            log.error("Erro ao processar usuário {}: {}", user.getUsername(), e.getMessage(), e);
             return false;
         }
 
@@ -141,15 +119,11 @@ public class UserAttributeExtractorService {
             String cpfApenasNumeros = cpfFormatado.replaceAll("\\D", "");
 
             if (cpfApenasNumeros.length() == 11) {
-                log.info("✓ CPF extraído: {} → {}", cpfFormatado, cpfApenasNumeros);
                 return cpfApenasNumeros;
             } else {
-                log.warn("Cpf {} possui tamanho inválido: {}", cpfApenasNumeros, cpfApenasNumeros.length());
                 return null;
             }
         }
-
-        log.warn("⚠ Padrão 'CPF:XXX.XXX.XXX-XX' não encontrado na description");
         return null;
     }
 }
