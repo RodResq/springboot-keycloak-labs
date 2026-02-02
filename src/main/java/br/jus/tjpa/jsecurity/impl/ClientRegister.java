@@ -20,12 +20,6 @@ import br.jus.tjpa.jsecurity.register.JSecurityRegister;
 import br.jus.tjpa.jsecurity.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Classe que registra o client no Keycloak.
- * 
- * @author jcruz
- *
- */
 @Component
 @Slf4j
 public class ClientRegister implements JSecurityRegister {
@@ -36,15 +30,11 @@ public class ClientRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os clients.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractClientConfiguration> clientsConf;
 
 	@Override
 	public void register() {
-		log.info("-- Client --");
 		if (Objects.nonNull(clientsConf)) {
 			for (AbstractClientConfiguration clientConf : clientsConf) {
 				ClientRepresentation representation = new ClientRepresentation();

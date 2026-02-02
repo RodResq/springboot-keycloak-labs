@@ -19,16 +19,12 @@ public class JSPolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os Js Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractJsPolicyConfiguration> jsPolicies;
 
 	@Override
 	public void register() {
 		if (Objects.nonNull(jsPolicies)) {
-			log.info("-- JS Polices --");
 			for (AbstractJsPolicyConfiguration policy : jsPolicies) {
 				JSPolicyRepresentation representation = new JSPolicyRepresentation();
 				policy.configure(representation);

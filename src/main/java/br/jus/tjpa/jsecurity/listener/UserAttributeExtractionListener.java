@@ -21,10 +21,7 @@ public class UserAttributeExtractionListener {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         if (autoExtractAttributes) {
-            log.info("Auto-extração de atributos habilitada. Processando usuários");
             try {
-//                userAttributeExtractorService.extractCpfFomAllUses();
-                //TODO Atribuir o cpf ao token
                 log.info("Extração automatica de atributos concluída com sucesso!");
             } catch (Exception e) {
                 log.error("Erro ao extrair atributos automaticamente: {}", e.getMessage(), e);

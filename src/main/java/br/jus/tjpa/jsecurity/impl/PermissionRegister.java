@@ -18,15 +18,12 @@ public class PermissionRegister implements JSecurityRegister {
 
 	@Autowired
 	private SecurityService securityService;
-	/**
-	 * Lista com todas as Permissions.
-	 */
+
 	@Autowired(required = false)
 	private Collection<AbstractPermissionConfiguration> permissions;
 
 	@Override
 	public void register() {
-		log.info("-- Permissions --");
 		if (Objects.nonNull(permissions)) {
 			for (AbstractPermissionConfiguration permission : permissions) {
 				ResourcePermissionRepresentation representation = new ResourcePermissionRepresentation();

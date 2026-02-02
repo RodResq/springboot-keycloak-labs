@@ -19,16 +19,12 @@ public class ClientPolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos Client Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractClientPolicyConfiguration> clientPolicies;
 
 	@Override
 	public void register() {
 		if (Objects.nonNull(clientPolicies)) {
-			log.info("-- Client Polcies --");
 			for (AbstractClientPolicyConfiguration policy : clientPolicies) {
 				ClientPolicyRepresentation representation = new ClientPolicyRepresentation();
 				policy.configure(representation);

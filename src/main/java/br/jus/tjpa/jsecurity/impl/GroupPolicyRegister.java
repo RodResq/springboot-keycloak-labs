@@ -19,16 +19,12 @@ public class GroupPolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os Group Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractGroupPolicyConfiguration> groupPolicies;
 
 	@Override
 	public void register() {
 		if (Objects.nonNull(groupPolicies)) {
-			log.info("-- Group Polcies --");
 			for (AbstractGroupPolicyConfiguration policy : groupPolicies) {
 				GroupPolicyRepresentation representation = new GroupPolicyRepresentation();
 				policy.configure(representation);

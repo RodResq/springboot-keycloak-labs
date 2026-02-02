@@ -19,15 +19,11 @@ public class ResourceRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os resources.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractResourceConfiguration> resources;
 
 	@Override
 	public void register() {
-		log.info("-- Resources --");
 		if (Objects.nonNull(resources)) {
 			for (AbstractResourceConfiguration resource : resources) {
 				ResourceRepresentation representation = new ResourceRepresentation();

@@ -20,16 +20,12 @@ public class UserPolicyRegister implements JSecurityRegister {
 
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os User Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractUserPolicyConfiguration> userPolicies;
 
 	@Override
 	public void register() {
 		if (Objects.nonNull(userPolicies)) {
-			log.info("-- User Policies --");
 			for (AbstractUserPolicyConfiguration policy : userPolicies) {
 				UserPolicyRepresentation representation = new UserPolicyRepresentation();
 				policy.configure(representation);

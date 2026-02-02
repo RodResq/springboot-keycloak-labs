@@ -12,12 +12,7 @@ import br.jus.tjpa.jsecurity.register.JSecurityRegister;
 import br.jus.tjpa.jsecurity.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Classe que registra os realms no Keycloak.
- * 
- * @author jcruz
- *
- */
+
 @Component
 @Slf4j
 public class RealmRegister implements JSecurityRegister {
@@ -25,15 +20,11 @@ public class RealmRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService secService;
 
-	/**
-	 * Lista com todos os realms.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractRealmConfiguration> realms;
 
 	@Override
 	public void register() {
-		log.debug("-- Realm --");
 		if (Objects.nonNull(realms)) {
 			for (AbstractRealmConfiguration realm : realms) {
 				RealmRepresentation realmRepresentation = new RealmRepresentation();

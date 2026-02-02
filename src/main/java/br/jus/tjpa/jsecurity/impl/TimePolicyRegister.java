@@ -19,16 +19,12 @@ public class TimePolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os Time Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractTimePolicyConfiguration> timePolicies;
 
 	@Override
 	public void register() {
 		if (Objects.nonNull(timePolicies)) {
-			log.info("-- Time Policies --");
 			for (AbstractTimePolicyConfiguration policy : timePolicies) {
 				TimePolicyRepresentation representation = new TimePolicyRepresentation();
 				policy.configure(representation);

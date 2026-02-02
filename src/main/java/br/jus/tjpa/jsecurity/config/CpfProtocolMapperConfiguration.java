@@ -18,9 +18,6 @@ public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfig
 
     @PostConstruct
     public void init() {
-        log.info("╔════════════════════════════════════════╗");
-        log.info("║  CpfProtocolMapperConfiguration ATIVO  ║");
-        log.info("╚════════════════════════════════════════╝");
     }
 
     @Override
@@ -44,10 +41,5 @@ public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfig
 
         representation.setConfig(config);
 
-        log.info("╔════════════════════════════════════════╗");
-        log.info("║   MAPPER CPF CONFIGURADO COM SUCESSO   ║");
-        log.info("╚════════════════════════════════════════╝");
-        log.info("Configurações aplicadas:");
-        config.forEach((key, value) -> log.info("  {} = {}", key, value));
     }
 }

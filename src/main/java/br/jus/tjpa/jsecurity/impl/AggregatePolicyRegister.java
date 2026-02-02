@@ -16,9 +16,7 @@ public class AggregatePolicyRegister implements JSecurityRegister {
 
 	@Autowired
 	private SecurityService securityService;
-	/**
-	 * Lista com todos os Aggregate Policies.
-	 */
+
 	@Autowired(required = false)
 	private Collection<AbstractAggregatePolicyConfiguration> aggregatePolicies;
 

@@ -20,12 +20,6 @@ import br.jus.tjpa.jsecurity.register.JSecurityRegister;
 import br.jus.tjpa.jsecurity.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Classe quer registra os usuários no Keycloak.
- * 
- * @author jcruz
- *
- */
 @Component
 @Slf4j
 public class UserRegister implements JSecurityRegister {
@@ -38,15 +32,12 @@ public class UserRegister implements JSecurityRegister {
 
 	@Autowired
 	private SecurityService securityService;
-	/**
-	 * Lista com todos os usuários.
-	 */
+
 	@Autowired(required = false)
 	private Collection<AbstractUserConfiguration> users;
 
 	@Override
 	public void register() {
-		log.info("-- Users --");
 		if (Objects.nonNull(users)) {
 			for (AbstractUserConfiguration user : users) {
 				UserRepresentation representation = new UserRepresentation();

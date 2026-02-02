@@ -25,7 +25,6 @@ public class JSecurityAutoRegister {
 
 	@EventListener(ContextRefreshedEvent.class)
 	protected void init() {
-		log.info("Iniciando o auto-registro dos artefatos no Keycloak...");
 		try {
 			applicationContext.getBean(RealmRegister.class).register();
 			applicationContext.getBean(ClientRegister.class).register();

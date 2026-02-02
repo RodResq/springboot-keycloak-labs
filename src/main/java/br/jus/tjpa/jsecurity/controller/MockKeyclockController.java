@@ -61,13 +61,6 @@ public class MockKeyclockController {
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginInput loginInput) {
         try {
-            log.info("╔════════════════════════════════════════╗");
-            log.info("║        INÍCIO DO PROCESSO LOGIN        ║");
-            log.info("╚════════════════════════════════════════╝");
-            log.info("Usuário: {}", loginInput.getUsername());
-            log.info("Efetuando Login com o usuário: {}", loginInput.getUsername());
-
-            log.info("\n[PASSO 1] Buscando usuário no Keycloak...");
             UserRepresentation userAntes = keycloak.realm(securityConfig.getTargetRealm())
                     .users()
                     .search(loginInput.getUsername())
@@ -75,24 +68,14 @@ public class MockKeyclockController {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-            log.info("✓ Usuário encontrado: {} (ID: {})", userAntes.getUsername(), userAntes.getId());
-
-            log.info("\n[VERIFICAÇÃO] Atributos ANTES da extração:");
             if (userAntes.getAttributes() == null || userAntes.getAttributes().isEmpty()) {
-                log.warn("Usuário NÃO possui atributos!");
+                log.warn("Usuário não possui atributos!");
             } else {
                 userAntes.getAttributes().forEach((key, value) -> {
                     log.info("  - {}: {}", key, value);
                 });
-
-                if (userAntes.getAttributes().containsKey("cpf")) {
-                    log.info("PF já existe: {}", userAntes.getAttributes().get("cpf"));
-                } else {
-                    log.warn("CPF NÃO existe ainda");
-                }
             }
 
-            log.info("\n[PASSO 2] Extraindo CPF do atributo description...");
             boolean cpfExtraido = userAttributeExtractorService.extractAndSetCPF(loginInput.getUsername());
 
             if (cpfExtraido) {
@@ -101,7 +84,6 @@ public class MockKeyclockController {
                 log.warn("Não foi possível extrair o CPF");
             }
 
-            log.info("\n[PASSO 3] Verificando atributos APÓS extração...");
             UserRepresentation userDepois = keycloak.realm(securityConfig.getTargetRealm())
                     .users()
                     .get(userAntes.getId())
@@ -170,18 +152,8 @@ public class MockKeyclockController {
             response.put("expires_in", tokenResponse.getExpiresIn());
             response.put("refresh_token", tokenResponse.getRefreshToken());
 
-            log.info("\n╔════════════════════════════════════════╗");
-            log.info("║          LOGIN CONCLUÍDO               ║");
-            log.info("╚════════════════════════════════════════╝\n");
-
-
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
-            log.error("\n╔════════════════════════════════════════╗");
-            log.error("║          ERRO NO LOGIN                 ║");
-            log.error("╚════════════════════════════════════════╝");
-            log.error("Erro: {}", e.getMessage(), e);
-
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Authentication failed");
             errorResponse.put("message", e.getMessage());
