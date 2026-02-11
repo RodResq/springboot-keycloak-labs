@@ -19,9 +19,6 @@ public class RolePolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os Role Policies.
-	 */
 	@Autowired(required = false)
 	private Collection<AbstractRolePolicyConfiguration> rolePolicies;
 

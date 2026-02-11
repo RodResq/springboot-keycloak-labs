@@ -61,9 +61,6 @@ public class ProtocolMapperRegister implements JSecurityRegister {
 
     }
 
-    /**
-     * Registra o Protocol Mapper no Client Scope dedicado
-     */
     private boolean registerProtocolMapper(ProtocolMapperRepresentation representation) {
         try {
 
@@ -79,12 +76,10 @@ public class ProtocolMapperRegister implements JSecurityRegister {
                 return false;
             }
 
-            // Obter o recurso do Client Scope
             ClientScopeResource clientScopeResource = keycloak.realm(securityProperties.getRealm())
                     .clientScopes()
                     .get(clientScope.getId());
 
-            // Verificar se o mapper já existe
             boolean mapperExists = clientScopeResource.getProtocolMappers()
                     .getMappers()
                     .stream()
@@ -94,10 +89,8 @@ public class ProtocolMapperRegister implements JSecurityRegister {
                 return false;
             }
 
-            // Criar o mapper no Client Scope
             clientScopeResource.getProtocolMappers().createMapper(representation).close();
 
-            // Verificar se foi criado
             boolean created = clientScopeResource.getProtocolMappers()
                     .getMappers()
                     .stream()
@@ -106,7 +99,7 @@ public class ProtocolMapperRegister implements JSecurityRegister {
             if (created) {
                 return true;
             } else {
-                return true; // Consideramos sucesso mesmo assim
+                return true;
             }
 
         } catch (Exception e) {

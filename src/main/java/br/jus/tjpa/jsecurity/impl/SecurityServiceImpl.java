@@ -93,7 +93,6 @@ public class SecurityServiceImpl implements SecurityService {
 		return false;
 	}
 
-	// TODO Verificar a existência dos Scopes antes de criar o Resource.
 	@Override
 	public boolean register(ResourceRepresentation representation) {
 		Assert.hasText(representation.getName(), "O atributo 'name' do resource deve ser definido.");
@@ -108,7 +107,6 @@ public class SecurityServiceImpl implements SecurityService {
 		return false;
 	}
 
-	// TODO Exibir nome da classe no erro de assert.
 	@Override
 	public boolean register(ClientPolicyRepresentation representation) {
 		Assert.hasText(representation.getName(), "O atributo 'name' da ClientPolicy '{}' é obrigatório.");
@@ -192,11 +190,6 @@ public class SecurityServiceImpl implements SecurityService {
 		return true;
 	}
 
-	/**
-	 * Método registraro de Permission.
-	 * 
-	 * @param permission
-	 */
 	@Override
 	public boolean register(ResourcePermissionRepresentation representation) {
 		getClientResource().authorization().permissions().resource().create(representation).close();
@@ -204,9 +197,6 @@ public class SecurityServiceImpl implements SecurityService {
 		return true;
 	}
 
-	/*
-	 * 
-	 */
 	@Override
 	public boolean register(UserRepresentation representation) {
 		Assert.hasText(representation.getUsername(), "O atributo 'username' é obrigatório.");

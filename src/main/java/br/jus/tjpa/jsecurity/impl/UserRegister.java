@@ -44,7 +44,6 @@ public class UserRegister implements JSecurityRegister {
 				user.configure(representation);
 				if (!securityService.register(representation)) {
 					ClientRepresentation clientRepresentation = securityService.getClientResource(securityProperties.getClientId()).toRepresentation();
-					// Atualiza as roles do usuário para o client.
 					addDefaultRoles(representation, clientRepresentation);
 				}
 			}

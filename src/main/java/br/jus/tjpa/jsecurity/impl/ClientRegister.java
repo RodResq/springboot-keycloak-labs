@@ -57,22 +57,18 @@ public class ClientRegister implements JSecurityRegister {
 		if (Objects.nonNull(clientConf.roles())) roles.addAll(clientConf.roles());
 		ClientResource frontendClientResource = securityService.getClientResource(clientConf.frontend().getClientId());
 		ClientResource backendClientResource = securityService.getClientResource(representation.getClientId());
-		// @formatter:off
 		frontendClientResource.getScopeMappings().clientLevel(backendClientResource.toRepresentation().getId())
 			.add(roles
 					.stream()
 					.map(role -> new RoleRepresentation(role, role, false))
 					.collect(Collectors.toList()));
-		// @formatter:on
 	}
 
 	private void addRoles(AbstractClientConfiguration clientConf, String clientId) {
-		// @formatter:off
 		clientConf.roles().stream()
 			.filter(role -> !StringUtils.isEmpty(role))
 			.map(role -> new RoleRepresentation(role, role, false))
 			.forEach(role -> securityService.getClientResource(clientId).roles().create(role));
-		// @formatter:on
 	}
 
 }

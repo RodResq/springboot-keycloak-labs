@@ -19,9 +19,7 @@ public class RulePolicyRegister implements JSecurityRegister {
 	@Autowired
 	private SecurityService securityService;
 
-	/**
-	 * Lista com todos os Rule Policies.
-	 */
+
 	@Autowired(required = false)
 	private Collection<AbstractRulePolicyConfiguration> rulePolicies;
 
