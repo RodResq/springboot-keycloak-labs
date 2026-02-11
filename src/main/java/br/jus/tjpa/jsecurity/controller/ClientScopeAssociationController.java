@@ -26,7 +26,7 @@ public class ClientScopeAssociationController {
     @Value("${keycloak.user-client}")
     private String clientId;
 
-    @Value("${keycloak.client-scope-name:acme}")
+    @Value("${keycloak.client-scope-name:ciprej-app}")
     private String clientScopeName;
 
     @GetMapping("/verificar")

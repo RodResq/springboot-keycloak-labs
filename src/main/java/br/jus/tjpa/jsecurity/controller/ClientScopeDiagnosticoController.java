@@ -25,7 +25,7 @@ public class ClientScopeDiagnosticoController {
     @Value("${keycloak.target-realm}")
     private String targetRealm;
 
-    @Value("${keycloak.client-scope-name:acme-dedicated}")
+    @Value("${keycloak.client-scope-name:ciprej-app-dedicated}")
     private String clientScopeName;
 
     @GetMapping("/listar")

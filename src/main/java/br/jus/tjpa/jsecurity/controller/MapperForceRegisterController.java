@@ -27,7 +27,7 @@ public class MapperForceRegisterController {
     @Value("${keycloak.target-realm}")
     private String targetRealm;
 
-    @Value("${keycloak.client-scope-name:acme}")
+    @Value("${keycloak.client-scope-name:ciprej-app}")
     private String clientScopeName;
 
     @PostMapping("/forcar-registro-cpf")

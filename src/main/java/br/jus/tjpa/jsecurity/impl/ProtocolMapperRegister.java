@@ -36,7 +36,7 @@ public class ProtocolMapperRegister implements JSecurityRegister {
     @Value("${keycloak.user-client}")
     private String userClientId;
 
-    @Value("${keycloak.client-scope-name:acme-dedicated}")
+    @Value("${keycloak.client-scope-name:ciprej-app-dedicated}")
     private String clientScopeName;
 
     @Override
@@ -68,7 +68,7 @@ public class ProtocolMapperRegister implements JSecurityRegister {
                     .clientScopes()
                     .findAll()
                     .stream()
-                    .filter(cs -> clientScopeName.equals("acme"))
+                    .filter(cs -> clientScopeName.equals("ciprej-app"))
                     .findFirst()
                     .orElse(null);
 
@@ -111,6 +111,6 @@ public class ProtocolMapperRegister implements JSecurityRegister {
     }
 
     private String getClientIdFromProperties() {
-        return "acme";
+        return "ciprej-app";
     }
 }
