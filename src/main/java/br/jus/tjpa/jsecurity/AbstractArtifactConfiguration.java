@@ -5,13 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import br.jus.tjpa.jsecurity.config.SecurityProperties;
 import lombok.Getter;
 
-/**
- * Classe genérica de um atefato do keycloak.
- * 
- * @author jcruz
- *
- * @param <T>
- */
 @Getter
 public abstract class AbstractArtifactConfiguration<T> {
 

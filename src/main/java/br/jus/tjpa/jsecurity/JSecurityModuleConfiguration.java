@@ -1,6 +1,5 @@
 package br.jus.tjpa.jsecurity;
 
-
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.context.annotation.ComponentScan;
