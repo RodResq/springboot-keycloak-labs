@@ -28,14 +28,12 @@ public class UserAttributeExtractorService {
     @Value("${keycloak.target-realm}")
     private String targetRealm;
 
-
     public void extractCpfFomAllUses() {
         keycloak.realm(targetRealm)
                 .users()
                 .list()
                 .stream()
                 .forEach(user -> extractAndSetCPF(user.getUsername()));
-
     }
 
     public boolean extractAndSetCPF(String username) {
