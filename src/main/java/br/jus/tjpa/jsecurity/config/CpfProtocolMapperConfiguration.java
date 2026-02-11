@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Configuração do Protocol Mapper para incluir o CPF no token JWT
- */
 @Component
 @Slf4j
 public class CpfProtocolMapperConfiguration extends AbstractProtocolMapperConfiguration {
