@@ -28,13 +28,8 @@ public class ClientScopeDiagnosticoController {
     @Value("${keycloak.client-scope-name:acme-dedicated}")
     private String clientScopeName;
 
-    /**
-     * Lista todos os client scopes disponíveis
-     */
     @GetMapping("/listar")
     public ResponseEntity<Map<String, Object>> listarClientScopes() {
-        log.info("=== LISTANDO CLIENT SCOPES ===");
-
         try {
             List<ClientScopeRepresentation> clientScopes = keycloak.realm(targetRealm)
                     .clientScopes()
@@ -53,10 +48,9 @@ public class ClientScopeDiagnosticoController {
                         scopeInfo.put("protocol", cs.getProtocol());
                         scopeInfo.put("description", cs.getDescription());
 
-                        // Verificar se é o scope configurado
                         if (clientScopeName.equals(cs.getName())) {
                             scopeInfo.put("is_target", true);
-                            log.info("✓ Client Scope alvo encontrado: {}", cs.getName());
+                            log.info("Client Scope alvo encontrado: {}", cs.getName());
                         } else {
                             scopeInfo.put("is_target", false);
                         }
@@ -67,7 +61,6 @@ public class ClientScopeDiagnosticoController {
 
             response.put("client_scopes", scopesList);
 
-            // Verificar se o scope configurado existe
             boolean targetExists = clientScopes.stream()
                     .anyMatch(cs -> clientScopeName.equals(cs.getName()));
 
@@ -87,16 +80,9 @@ public class ClientScopeDiagnosticoController {
         }
     }
 
-    /**
-     * Verifica os mappers do client scope configurado
-     */
     @GetMapping("/mappers")
     public ResponseEntity<Map<String, Object>> verificarMappers() {
-        log.info("=== VERIFICANDO MAPPERS DO CLIENT SCOPE ===");
-        log.info("Client Scope: {}", clientScopeName);
-
         try {
-            // Buscar o client scope
             ClientScopeRepresentation clientScope = keycloak.realm(targetRealm)
                     .clientScopes()
                     .findAll()
@@ -106,14 +92,13 @@ public class ClientScopeDiagnosticoController {
                     .orElse(null);
 
             if (clientScope == null) {
-                log.error("❌ Client Scope '{}' não encontrado!", clientScopeName);
+                log.error("Client Scope '{}' não encontrado!", clientScopeName);
                 return ResponseEntity.status(404).body(Map.of(
                         "status", "ERRO",
                         "mensagem", "Client Scope não encontrado: " + clientScopeName
                 ));
             }
 
-            // Buscar os mappers
             List<ProtocolMapperRepresentation> mappers = keycloak.realm(targetRealm)
                     .clientScopes()
                     .get(clientScope.getId())
@@ -125,7 +110,6 @@ public class ClientScopeDiagnosticoController {
             response.put("client_scope_name", clientScope.getName());
             response.put("total_mappers", mappers.size());
 
-            // Verificar se o mapper CPF existe
             boolean cpfMapperExists = mappers.stream()
                     .anyMatch(m -> "cpf".equals(m.getName()));
 
@@ -142,11 +126,9 @@ public class ClientScopeDiagnosticoController {
 
                         if ("cpf".equals(m.getName())) {
                             mapperInfo.put("is_cpf_mapper", true);
-                            log.info("✓✓✓ MAPPER CPF ENCONTRADO!");
                         } else {
                             mapperInfo.put("is_cpf_mapper", false);
                         }
-
                         return mapperInfo;
                     })
                     .collect(Collectors.toList());
@@ -169,22 +151,13 @@ public class ClientScopeDiagnosticoController {
         }
     }
 
-    /**
-     * Teste completo: verifica tudo
-     */
     @GetMapping("/teste-completo")
     public ResponseEntity<Map<String, Object>> testeCompleto() {
-        log.info("╔════════════════════════════════════════╗");
-        log.info("║        TESTE COMPLETO - INÍCIO         ║");
-        log.info("╚════════════════════════════════════════╝");
-
         Map<String, Object> resultado = new HashMap<>();
         List<String> problemas = new ArrayList<>();
         List<String> sucessos = new ArrayList<>();
 
         try {
-            // 1. Verificar Client Scopes
-            log.info("\n[1/3] Verificando Client Scopes...");
             List<ClientScopeRepresentation> allScopes = keycloak.realm("dev")
                     .clientScopes()
                     .findAll();
@@ -197,19 +170,17 @@ public class ClientScopeDiagnosticoController {
                     .orElse(null);
 
             if (targetScope != null) {
-                sucessos.add("✓ Client Scope '" + clientScopeName + "' encontrado");
+                sucessos.add("Client Scope '" + clientScopeName + "' encontrado");
                 resultado.put("client_scope_existe", true);
                 resultado.put("client_scope_id", targetScope.getId());
             } else {
-                problemas.add("❌ Client Scope '" + clientScopeName + "' NÃO encontrado");
+                problemas.add("Client Scope '" + clientScopeName + "' NÃO encontrado");
                 resultado.put("client_scope_existe", false);
                 resultado.put("status", "ERRO_CRÍTICO");
                 resultado.put("problemas", problemas);
                 return ResponseEntity.status(404).body(resultado);
             }
 
-            // 2. Verificar Mappers
-            log.info("\n[2/3] Verificando Mappers...");
             List<ProtocolMapperRepresentation> mappers = keycloak.realm(targetRealm)
                     .clientScopes()
                     .get(targetScope.getId())
@@ -221,10 +192,9 @@ public class ClientScopeDiagnosticoController {
             boolean cpfExists = mappers.stream().anyMatch(m -> "cpf".equals(m.getName()));
 
             if (cpfExists) {
-                sucessos.add("✓ Mapper CPF encontrado");
+                sucessos.add("Mapper CPF encontrado");
                 resultado.put("cpf_mapper_existe", true);
 
-                // Detalhes do mapper CPF
                 ProtocolMapperRepresentation cpfMapper = mappers.stream()
                         .filter(m -> "cpf".equals(m.getName()))
                         .findFirst()
@@ -239,31 +209,23 @@ public class ClientScopeDiagnosticoController {
                     resultado.put("cpf_mapper_details", cpfDetails);
                 }
             } else {
-                problemas.add("❌ Mapper CPF NÃO encontrado");
+                problemas.add("Mapper CPF NÃO encontrado");
                 resultado.put("cpf_mapper_existe", false);
             }
 
-            // 3. Resumo
-            log.info("\n[3/3] Gerando resumo...");
             resultado.put("sucessos", sucessos);
             resultado.put("problemas", problemas);
 
             if (problemas.isEmpty()) {
                 resultado.put("status", "TUDO_OK");
-                log.info("\n✓✓✓ TESTE COMPLETO: SUCESSO ✓✓✓");
             } else {
                 resultado.put("status", "COM_PROBLEMAS");
-                log.warn("\n⚠ TESTE COMPLETO: Problemas encontrados");
             }
-
-            log.info("\n╔════════════════════════════════════════╗");
-            log.info("║        TESTE COMPLETO - FIM            ║");
-            log.info("╚════════════════════════════════════════╝\n");
 
             return ResponseEntity.ok(resultado);
 
         } catch (Exception e) {
-            log.error("\n❌ ERRO no teste completo: {}", e.getMessage(), e);
+            log.error("\nERRO no teste completo: {}", e.getMessage(), e);
             resultado.put("status", "ERRO");
             resultado.put("erro", e.getMessage());
             return ResponseEntity.status(500).body(resultado);
