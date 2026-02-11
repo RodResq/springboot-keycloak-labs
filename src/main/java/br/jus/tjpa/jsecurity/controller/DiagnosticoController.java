@@ -26,9 +26,6 @@ public class DiagnosticoController {
     @GetMapping("/usuario/{username}/atributos")
     private ResponseEntity<Map<String, Object>> verficarAtributos(@PathVariable String username) {
         try {
-            log.info("=== DIAGNÓSTICO DE ATRIBUTOS ===");
-            log.info("Buscando usuário: {}", username);
-
             UserRepresentation user = keycloak.realm(securityConfig.getTargetRealm())
                     .users()
                     .search(username)
@@ -44,13 +41,11 @@ public class DiagnosticoController {
             Map<String, List<String>> attributes = user.getAttributes();
 
             if (attributes == null || attributes.isEmpty()) {
-                log.warn("Usuário NÃO possui atributos!");
                 diagnostico.put("status", "SEM_ATRIBUTOS");
                 diagnostico.put("atributos", null);
                 diagnostico.put("tem_cpf", false);
                 diagnostico.put("tem_description", false);
             } else {
-                log.info("Attributos encontrados:");
                 attributes.forEach((key, value) -> {
                     log.info(" - {}:{}", key, value);
                 });
@@ -113,8 +108,6 @@ public class DiagnosticoController {
         @RequestParam(defaultValue = "10") int max) {
 
         try {
-            log.info("=== VERIFICANDO CPF DE USUÁRIOS ===");
-
             List<UserRepresentation> users = keycloak.realm(securityConfig.getTargetRealm())
                     .users()
                     .list(first, max);
@@ -146,9 +139,6 @@ public class DiagnosticoController {
             result.put("sem_cpf", semCpf);
             result.put("com_description", comDescription);
             result.put("paginacao", Map.of("firts", first, "max", max));
-
-            log.info("Total: {}, Com CPF: {}, Sem CPF: {}, Com Description: {}",
-                    total, comCpf, semCpf, comDescription);
 
             return ResponseEntity.ok(result);
 

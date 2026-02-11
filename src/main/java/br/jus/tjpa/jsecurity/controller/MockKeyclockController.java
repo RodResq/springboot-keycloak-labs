@@ -251,7 +251,6 @@ public class MockKeyclockController {
 
 
         try {
-            log.info("[1/4] Buscando usuário...");
             UserRepresentation user = keycloak.realm(targetRealm)
                     .users()
                     .search(username)
@@ -261,14 +260,10 @@ public class MockKeyclockController {
 
             log.info("Usuário encontrado: {} (ID: {})", user.getUsername(), user.getId());
 
-            // 2. Obter UserResource
-            log.info("[2/4] Obtendo recurso do usuário...");
             UserResource userResource = keycloak.realm(targetRealm)
                     .users()
                     .get(user.getId());
 
-            // 3. Obter representação ATUAL com todos os atributos
-            log.info("[3/4] Obtendo atributos atuais...");
             UserRepresentation userAtual = userResource.toRepresentation();
 
             Map<String, List<String>> attributes = userAtual.getAttributes();
@@ -276,24 +271,16 @@ public class MockKeyclockController {
                 attributes = new HashMap<>();
             }
 
-            log.info("Atributos ANTES:");
             attributes.forEach((key, value) -> log.info("  - {}: {}", key, value));
 
-            log.info("[4/4] Adicionando cpf_custom...");
             attributes.put("cpf_custom", Arrays.asList(cpf));
 
-            // IMPORTANTE: Usar a representação ATUAL, não a antiga
             userAtual.setAttributes(attributes);
 
-            // 5. Atualizar no Keycloak
-            log.info("Atualizando usuário no Keycloak...");
             userResource.update(userAtual);
 
-            // 6. Verificar se foi salvo
-            log.info("Verificando se foi salvo...");
             UserRepresentation userVerificado = userResource.toRepresentation();
 
-            log.info("Atributos DEPOIS:");
             boolean sucesso = userVerificado.getAttributes() != null
                     && userVerificado.getAttributes().containsKey("cpf_custom")
                     && !userVerificado.getAttributes().get("cpf_custom").isEmpty();
@@ -302,7 +289,6 @@ public class MockKeyclockController {
 
             if (sucesso) {
                 String cpfSalvo = userVerificado.getAttributes().get("cpf_custom").get(0);
-                log.info("SUCESSO: CPF salvo: {}", cpfSalvo);
 
                 response.put("status", "SUCESSO");
                 response.put("mensagem", "CPF adicionado como atributo local");
@@ -311,25 +297,19 @@ public class MockKeyclockController {
                 response.put("user_id", user.getId());
                 response.put("username", user.getUsername());
             } else {
-                log.error("ERRO: CPF não foi salvo");
-                log.error("Atributos após update: {}", userVerificado.getAttributes());
-
                 response.put("status", "ERRO");
                 response.put("mensagem", "Não foi possível adicionar CPF");
                 response.put("atributos_apos_update", userVerificado.getAttributes());
             }
-
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("ERRO ao adicionar CPF: {}", e.getMessage(), e);
 
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("status", "ERRO");
             errorResponse.put("mensagem", e.getMessage());
             errorResponse.put("tipo_erro", e.getClass().getSimpleName());
 
-            // Se for erro de permissão ou readonly
             if (e.getMessage() != null && e.getMessage().contains("read-only")) {
                 errorResponse.put("sugestao", "Usuário LDAP não permite modificação direta. Use a solução com LDAP Mapper.");
             }
